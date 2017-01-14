@@ -71,6 +71,10 @@ multiple requests to be made, and therefore multiple samples are collected per
 work request. The set of samples collected for a particular work request are a
 \textit{sampleset}.
 
+
+\begin{figure}[H] \caption{Samplesets} \centering
+\includegraphics[width=0.7\textwidth]{diagrams/samplesets.png}\end{figure}
+
 A successful attack completely decrypts a portion of the plaintext. The portion
 of the plaintext which the attack tries to decrypt is the \textit{secret}. That
 portion is identified through an initially known prefix which distinguishes it
@@ -88,7 +92,7 @@ When a certain prefix of the secret is known, the next byte of the secret must
 be determined. The attack initially assumes the next unknown byte of the secret
 can come from the secret's alphabet, but slowly drills down and rejects
 alphabet symbols until only one candidate symbol remains. At each stage of the
-attack of one byte of the secret, there is a certain **known alphabet** which
+attack of one byte of the secret, there is a certain \textit{known alphabet} which
 the next byte can take. This known alphabet is a subset of the secret's
 alphabet.
 
@@ -96,6 +100,10 @@ To drill down on the known alphabet, one of two methods is employed. In the
 \textit{serial method}, each symbol of the known alphabet is tried sequentially. In
 the \textit{divide \& conquer method}, the alphabet is split into two \textit{candidate
 alphabet} subsets which are tried independently.
+
+
+\begin{figure}[H] \caption{Divide \& Conquer Alphabet} \centering
+\includegraphics[width=0.7\textwidth]{diagrams/divideconquer.png}\end{figure}
 
 The attack is conducted in \textit{rounds}. In each round, a decision is made
 about the state of the attack and more becomes known about the secret. In a
@@ -108,7 +116,7 @@ In each batch, several samples are collected from each probability distribution
 pertaining to a candidate alphabet, forming a sampleset. When samplesets of the
 same amount of samples each have been collected for all the candidate
 alphabets, a batch is completed and the data is analyzed. The analysis is
-performed by the **analyzer** which statistically compares the samples of
+performed by the \textit{analyzer} which statistically compares the samples of
 different distributions and decides which distribution is optimal, i.e.
 contains the correct guess. This decision is made with some \textit{confidence},
 which is expressed in bytes. If the confidence is insufficient, an additional
@@ -119,6 +127,10 @@ Once enough batches have been collected for a decision to be made with good
 confidence, the round of the attack is completed and more information about the
 secret becomes known. Each round at best collects one bit of information of the
 secret.
+
+
+\begin{figure}[H] \caption{Scoreboard} \centering
+\includegraphics[width=0.7\textwidth]{diagrams/scoreboard.png}\end{figure}
 
 \section{Architecture}\label{sec:architecture}
 
@@ -136,7 +148,7 @@ shell scripts that use the appropriate bettercap modules to perform the attack.
 
 As all HTTP responses are infected, this provides increased robustness.
 The injected client code remains dormant until it is asked to wake
-up by the command-and-control channel. This means that the user can switch
+up by the command -and-control channel. This means that the user can switch
 between browsers, reboot their computer, close and reopen browser tabs, and the
 attack will keep running.
 
@@ -166,6 +178,9 @@ victim's network. As the client issues chosen plaintext requests, the sniffer
 collects the respective ciphertext requests and ciphertext responses as they
 travel on the network. These encrypted data are then transmitted to the backend
 for further analysis and decryption.
+
+\begin{figure}[H] \caption{Sniffer Code} \centering
+\includegraphics[width=0.7\textwidth]{diagrams/sniffer.png}\end{figure}
 
 Our sniffer implementation runs on the same network as the victim. It is a
 Python program which uses scapy \cite{scapy} to
@@ -250,6 +265,8 @@ clients will be waken up to take over the attack.
 The client is a Javascript program written using harmony / ECMAScript 6 and
 compiled using babel and webpack.
 
+\begin{figure}[H] \caption{Client Code} \centering
+\includegraphics[width=0.7\textwidth]{diagrams/client.png}\end{figure}
 
 \subsection{Real-time}
 
@@ -274,6 +291,9 @@ errors if the victim disconnects from the network, closes their tab or browser,
 and so on. It is imperative that incomplete work is marked as failed as soon as
 possible so that the attack can continue by recollecting the failed samples.
 
+\begin{figure}[H] \caption{Real-time Code} \centering
+\includegraphics[width=0.7\textwidth]{diagrams/realtime.png}\end{figure}
+
 The web socket API exposed by the real-time service is explained below.
 
 \subsubsection{client <-> real-time protocol}
@@ -289,9 +309,9 @@ exchanged, the client and server can exchange futher messages.
 
  \textbf{get-work / do-work}
 
-When the client is ready to perform work, it emits the message **get-work**
+When the client is ready to perform work, it emits the message \textit{get-work}
 requesting work to be performed from the real-time server. The real-time server
-responds with a **do-work** message, passing a *work* object, that is
+responds with a \textit{do-work} message, passing a \textit{work} object, that is
 structured as defined below:
 
 \texttt{
@@ -313,7 +333,7 @@ information:
 
 \texttt
 {
-  work: work,
+  work: work,\\
   success: bool
 }
 
