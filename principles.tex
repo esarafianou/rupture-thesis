@@ -1,20 +1,20 @@
 \chapter{Rupture framework}\label{rupture}
 
-In this chapter, we will describe our framework for conducting compression side-channel attacks,
-Rupture. Rupture is a service-based architecture system which contains multiple
+In this chapter, we describe our framework for conducting compression side-channel attacks,
+Rupture. Rupture\cite{rupture} is a service-based architecture system which contains multiple
 independent components.
 
-The section \ref{sec:assumptions} descibes in details the assumptions needed to be made 
+The section \ref{sec:assumptions} descibes in detail the assumptions needed 
 in order to orchestrate the attack. The section \ref{sec:principles} describes the 
 terminology used in our framework and its governing principles. Finally, the section
-\ref{sec:architecture} presents thoroughly the multiple components.
+\ref{sec:architecture} presents the multiple components thoroughly.
 While the components are designed to be able to run
-independently on different networks or computer systems, easy instances of the
+independently on different networks or computer systems, the
 attack can be performed by running all subsystems on an individual system. We
 provide appropriate scripts to conduct such attacks easily.
 
 
-\section{Attack Assupmtions}\label{sec:assumptions}
+\section{Attack Assumptions}\label{sec:assumptions}
 
 The attack framework assumes a \textit{target} service to be attacked. Typically
 this target service is a web service which uses TLS. Specifically, we are
@@ -34,7 +34,7 @@ sniffing assumptions. These are often achieved through the same means, although
 not necessarily.
 
 The injection assumption states that the adversary is able to
-inject code to the victim's machine for execution. This code is able to issue
+inject code to the victim's browser for execution. This code is able to issue
 adaptive requests to the target service. Injection in Rupture is achieved
 through the \textit{injector} component. The code that is injected is the \textit{client}
 component.
@@ -43,7 +43,7 @@ The sniffing assumption states that the adversary is able to observe network
 traffic between the victim and the target. This traffic is typically
 ciphertexts. Sniffing is achieved through the \textit{sniffer} component.
 
-Both the referenced \textit{sniffer} and \textit{client} will be presented in section 
+Both the \textit{sniffer} and \textit{client} will be described in section 
 \ref{sec:architecture}.
 
 
@@ -54,21 +54,23 @@ Both the referenced \textit{sniffer} and \textit{client} will be presented in se
 The attack takes place by first injecting client code into the victim's
 computer using the injector. The client then opens a command-and-control
 channel to the real-time service, which forwards work from the backend to the
-client.
+client. The real-time service facilitates the communication between client and
+backend and the backend module makes all the desicions for the attack. Further 
+description for the real-time and the backend is provided in \ref{sec:architecture}.
 
 When a client associated with a victim asks to work, the backend passes a work
 request to the real-time service, which passes it to the client. These work
 requests ask the client to perform a series of network requests from the
-victim's computer to the target web app. As these requests are made from the
+victim's computer to the target web application. As these requests are made from the
 victim's browser, they contain authentication cookies which authenticate the
 user to the target service. As such, the responses contain sensitive data, but
 that data is not readable by the client due to same-origin policy.
 
 When a response arrives from the target web app to the victim's computer, the
 encrypted response is collected by the sniffer on the network. The encrypted
-data pertaining to one response is a \textit{sample}. Each work request asks for
+data pertaining to one response is a \textit{sample}. Each work asks for
 multiple requests to be made, and therefore multiple samples are collected per
-work request. The set of samples collected for a particular work request are a
+work. The set of samples collected for a particular work request are a
 \textit{sampleset}.
 
 
@@ -78,7 +80,8 @@ work request. The set of samples collected for a particular work request are a
 A successful attack completely decrypts a portion of the plaintext. The portion
 of the plaintext which the attack tries to decrypt is the \textit{secret}. That
 portion is identified through an initially known prefix which distinguishes it
-from other secrets. This prefix is typically 3 to 5 bytes long. Each byte of
+from other secrets. This prefix is typically 3 to 5 bytes long. A prefix
+of such a length is required to bootstrap the attack due to the LZ77 implementation. Each byte of
 the secret can be drawn from a given \textit{alphabet}, the secret's alphabet. For
 example, some secrets only contain numbers, and so their alphabet is the set of
 numbers [0-9].
@@ -90,9 +93,9 @@ is completed.
 
 When a certain prefix of the secret is known, the next byte of the secret must
 be determined. The attack initially assumes the next unknown byte of the secret
-can come from the secret's alphabet, but slowly drills down and rejects
+exists in the secret's alphabet, but slowly drills down and rejects
 alphabet symbols until only one candidate symbol remains. At each stage of the
-attack of one byte of the secret, there is a certain \textit{known alphabet} which
+attack on one byte of the secret, there is a certain \textit{known alphabet} which
 the next byte can take. This known alphabet is a subset of the secret's
 alphabet.
 
@@ -105,19 +108,23 @@ alphabet} subsets which are tried independently.
 \begin{figure}[H] \caption{Divide \& Conquer Alphabet} \centering
 \includegraphics[width=0.7\textwidth]{diagrams/divideconquer.png}\end{figure}
 
+
+The above figure shows how the initial alphabet is divided into two equal alphabets
+each of which will be tested separately.
+
 The attack is conducted in \textit{rounds}. In each round, a decision is made
 about the state of the attack and more becomes known about the secret. In a
 round, either the next byte of the secret becomes known, or the known alphabet
 is drilled down to a smaller set. In order to compare various different
-candidate alphabets, the attack executes a series of \textit{batches} of data
-collection for each round.
+candidate alphabets, the attack executes a series of steps to collect
+\textit{batches} of data collection for each round.
 
 In each batch, several samples are collected from each probability distribution
-pertaining to a candidate alphabet, forming a sampleset. When samplesets of the
-same amount of samples each have been collected for all the candidate
-alphabets, a batch is completed and the data is analyzed. The analysis is
+pertaining to a candidate alphabet, forming a \textit{sampleset}. When samplesets of the
+same amount of samples have been collected for all the candidate
+alphabets, a batch is complete and the data is analyzed. The analysis is
 performed by the \textit{analyzer} which statistically compares the samples of
-different distributions and decides which distribution is optimal, i.e.
+different candidates and decides which candidate is optimal, i.e.
 contains the correct guess. This decision is made with some \textit{confidence},
 which is expressed in bytes. If the confidence is insufficient, an additional
 batch of samplesets is collected, and the analysis is redone until the
@@ -132,13 +139,19 @@ secret.
 \begin{figure}[H] \caption{Scoreboard} \centering
 \includegraphics[width=0.7\textwidth]{diagrams/scoreboard.png}\end{figure}
 
+The above figure shows the results of the analysis of one batch. For each candidate letter
+we present a number, which is the total length of the samplesets for the specific letter.
+The candidate letters are presented in an ascending order of the total length. Bellow the scoreboard
+is the decision which consists of the known alphabet, the possible knownsecret and the confidence of
+how sure we are regarding the possible known secret.
+
 \section{Architecture}\label{sec:architecture}
 
 
 \subsection{Injector}
 The injector component is responsible for injecting code to the victim's
 computer for execution. In our implementation, we assume the adversary controls
-some network of the victim. Our injector injects the client code in all
+the network of the victim. Our injector injects the client code in all
 unauthenticated HTTP responses that the victim receives. This Javascript code
 is then executed by the victim's browser in the context of the respective
 domain name. We use bettercap \cite{bettercap}  to perform the HTTP
@@ -150,16 +163,17 @@ As all HTTP responses are infected, this provides increased robustness.
 The injected client code remains dormant until it is asked to wake
 up by the command -and-control channel. This means that the user can switch
 between browsers, reboot their computer, close and reopen browser tabs, and the
-attack will keep running.
+attack script will continue to be injected. As long as one tab with the client
+script is open, the attack can keep running.
 
 The injector component needs to run on the victim's network and as such is
 light-weight and stateless. It can be easily deployed on a machine such as a
 Raspberry Pi, and can be used for massive attacks, for example at public
-unencrypted networks such as coffee shops or airports. Multiple injectors can
+networks such as coffee shops or airports. Multiple injectors can
 be deployed to different networks, all controlled by the same central
 command-and-control channel.
 
-While injection is performed on the local network through altering HTTP
+While injection is performed on the local network by altering HTTP
 responses in our case, the injector component is independent and can be
 replaced by alternative means. Other good points of injection that can be used
 instead of our build-in injector are giving a link directly to the victim via a
@@ -187,7 +201,7 @@ Python program which uses scapy \cite{scapy} to
 collect network data.
 
 Our sniffer runs on the same machine as our injector and utilizes the
-injector's ARP spoofing to retrieve the data from the wire or the air. 
+injector's ARP spoofing to retrieve the data from the network. 
 Other sniffer alternatives include sniffing data on the target network side, or
 on the ISP or router point if the adversary has such a level of access.
 
@@ -283,10 +297,9 @@ with clients and connects to the backend service, facilitating the
 communication between the two.
 
 The real-time server forwards work requests and responses between the client
-and the Django service. The communication it does with the client uses web
-sockets in order to achieve bi-directional communication in real-time. This
-also facilitates the ability to detect that a client has gone away, which is
-registered as a failure to do work. This can happen for example due to network
+and the backend. It communicates with the client in a bi-directional way useing web
+sockets. This also facilitates the ability to detect that a client has gone away,
+which is registered as a failure to do work. This can happen for example due to network
 errors if the victim disconnects from the network, closes their tab or browser,
 and so on. It is imperative that incomplete work is marked as failed as soon as
 possible so that the attack can continue by recollecting the failed samples.
@@ -377,7 +390,7 @@ for the particular victim, and we do not wish to interfere with it.
 
 \textbf{/work\_completed/<victim>} is an HTTP POST endpoint. It indicates on behalf 
 of the client that some work was successfully or unsuccessfully completed. The arguments
-passed are the \textit{work} and a boolean \textit{success} parameter
+passed are the \textit{work} and a boolean \textit{success} parameter.
 
 If \textit{success} is \textit{True}, this indicates that the series of indicated requests
 were performed by the victim correctly. Otherwise, the victim failed to perform
