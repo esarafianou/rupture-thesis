@@ -40,7 +40,7 @@ length-distance pair, the first of which represents the length of the repeated
 portion and the second of which describes the distance backwards in the stream.
 In order to spot repeats, the protocol needs to keep track of some amount of the
 most recent data, specifically the latest 32 kilobytes. This data is held in a
-sliding window, the initial appearance of a portion of data needs to have occurred
+sliding window, therefore the initial appearance of a portion of data needs to have occurred
 at most 32 Kb up the data stream, in order to be compressed. Also, the minimum
 length of a text that can be compressed is 3 characters. Compressed text can
 refer to literals as well as pointers.
@@ -96,7 +96,7 @@ used for compressing it:
 \begin{table}[H] \centering \begin{tabular}{ | l | l | l | l | } \hline
 \textbf{o}: 7 & \textbf{l}: 5 & \textbf{a}: 3 & \textbf{n}: 3 \\ \textbf{u}: 2 &
 \textbf{h}: 2 & \textbf{e}: 2 & \textbf{m}: 2 \\ \textbf{t}: 2 & \textbf{w}: 1 &
-\textbf{d}: 1 & \textbf{i}: 1 \\ \textbf{b}: 1 & \textbf{f}: 1 & \textbf{}:  & \textbf{}:
+\textbf{d}: 1 & \textbf{i}: 1 \\ \textbf{b}: 1 & \textbf{f}: 1 & \textbf{}  & \textbf{}
 \\ \hline \end{tabular} \end{table}
 
 \centerline{\textbf{Huffman tree}}
@@ -124,7 +124,7 @@ access to sensitive  data on another web page through that page's Document Objec
 Model\footnote{\url{https://en.wikipedia.org/wiki/Document_Object_Model}}.
 
 The following table explains same-origin-policy. We assume that we want access from \\
-http://www.test.com/dir/test.html to the compared URLs
+http://www.test.com/dir/test.html to each of the following URLs:
 
 
 \begin{table}[H] \centering \begin{tabular}{ | l | l | l | } \hline
@@ -194,10 +194,10 @@ Transport Layer Security (TLS) is a cryptographic protocol that provide communic
 security over a computer network, allowing a server and a client to communicate in a way
 that prevents eavesdropping, tampering or message forgery.
 
-According to the protocol specification, TLS is composed of two layers:
+TLS is composed of two layers:
 the TLS Record Protocol and the TLS Handshake Protocol. The Record Protocol 
 provides connection security, while the Handshake Protocol allows the server 
-and client to authenticate each other and to negotiate encryption algorithms 
+and client to authenticate each other and negotiate encryption algorithms 
 and cryptographic keys before any data is exchanged.
 
 One category of TLS attack is compression attacks \cite{compression_attacks}. 
@@ -212,17 +212,17 @@ BREACH\footnote{\url{http://breachattack.com}}
 \includegraphics[width=0.7\textwidth]{diagrams/tls_handshake.png}\end{figure}
 
 The above sequence diagram presents the functionality of a TLS handshake.
-Client and Server exchange the basic parameters of the connection such as 
+The client and the server exchange the basic parameters of the connection such as 
 the highest TLS protocol version, a random number, a list of suggested cipher 
 suites and suggested compression methods. The server provides the client with all
-the necessary information in order to validate and use the asymmetric server key, in order
+the necessary information in order to validate and use the asymmetric server key
 to compute the symmetric key that will be used for the rest of the communication.
 The client computes the  PreMasterSecret and sends it to the server 
 which is then used by both parties to compute the symmetric key.
 Finally, both sides exchange and validate hash and MAC codes over all the
 previous messages, after which they both have the ability to communicate safely.
 
-This implies only in the basic TLS handshake. Client-authenticated and resumed handshakes
+This applies only in the basic TLS handshake. Client-authenticated and resumed handshakes
 are quite different, although they are not relevant for the purpose of this work.
 
 
@@ -260,9 +260,9 @@ the TLS record.
 \section{Man-in-the-Middle}\label{sec:mitm}
 
 A man-in-the-middle attack\footnote{\url{https://en.wikipedia.org/wiki/Man-in-the-middle_attack}}
-is a type of cyberattack where a malicious actor inserts him/herself into a conversation
-between two parties, impersonates both parties and gains access to information that the two 
-parties were trying to send to each other. A man-in-the-middle attack allows a malicious actor 
+is a type of cyberattack where a malicious actor inserts themselves into a conversation
+between two parties, impersonates both and gains access to information that they were
+trying to send to each other. A man-in-the-middle attack allows a malicious actor 
 to intercept, send and receive data meant for someone else, or not meant to be sent at all, 
 without either outside party knowing until it is too late. 
 
@@ -277,8 +277,8 @@ end-points. Below we describe one such attack, ARP Spoofing.
 
 \subsection{ARP Spoofing}
 
-ARP spoofing is a type of attack in which an attacker sends falsified ARP
-(Address Resolution Protocol) messages over a local area network.
+ARP spoofing\cite{arpspoofing} is a type of attack in which an attacker sends falsified ARP
+(Address Resolution Protocol)\cite{arp} messages over a local area network.
 This results in the linking of an attacker’s MAC address with the IP address
 of a legitimate computer or server on the network. This enables the attacker to
 begin receiving any data that is intended for that IP address. ARP spoofing can 
