@@ -1,21 +1,21 @@
 \chapter{Rupture API via Web UI}\label{rupture_api}
 
-In this chapter we describe our contributions regarding a RESTful API for Rupture
-We believe that the API that enables researchers to fully automate 
+In this chapter we describe our contributions regarding a RESTful API for Rupture.
+We believe that the API enables researchers to fully automate 
 TLS-based attacks such as compression side-channel attacks. We
 provide a usable, clean set of end-points which can be used to mount the
-attack: Managing targets such as various web services, managing victims by
-robustly injecting and sniffing for information on local networks based on IP
-addresses, managing strategies for advancing attack rounds based on state
-search exploration, and running analyses on collected data, which is stored
+attack. The RESTful API provides managing targets such as various web services,
+victims by robustly injecting and sniffing for information on local networks based on IP
+addresses and strategies for advancing attack rounds based on state
+search exploration. Is also runs analyses on collected data, which is stored
 persistently. We are confident this automation will enable cryptographers and
 security researchers to heavily experiment with the various attack parameters,
 yielding better attack results in terms of correctness and performance.
 
 \section{RESTful API}
-In this section, We describe theimplementation of  a RESTful API via HTTP 
+In this section, We describe the implementation of a RESTful API via HTTP 
 to which the user makes requests from the web User Interface. This 
-RESTful API can also be used directly by programmers without the need 
+RESTful API can also be directly used by programmers without the need 
 to use the web interface.
 
 \subsection{/attack}
@@ -24,7 +24,7 @@ The \textit{/attack} is an HTTP POST endpoint.
 
 When the backend receives a POST request, it initiates a new attack.
 The arguments passed are the victim's IP and the target. There is also an optional
-parameter, the \textit{victim\_id}. If the \textit{victim\_id} exists,
+parameter, the \textit{victim\_id}. If the \textit{victim\_id} is set,
 the victim already exists. If no \textit{victim\_id} argument is passed, the backend 
 creates and stores a new victim. In both cases, the backend
 creates the client and injection code for the specific victim and 
@@ -37,7 +37,7 @@ field \textit{victimid}, which contains the ID of the new victim.
 The \textit{/victim} is an HTTP POST and GET endpoint. 
 
 When the backend receives a POST request, it creates a new victim. 
-The arguments passed are the victim's IP. The backend 
+The argument passed is the victim's IP. The backend 
 creates and stores a new victim, and  returns HTTP 200 with a JSON that has a 
 field \textit{victimid}, which contains the ID of the new victim.
 
@@ -55,7 +55,9 @@ for the victim with the specific victimId. The argument passed is the
 victim's Id. The backend returns the general information and details of 
 the attack. The general information consists of the victim's IP and 
 machine name, the target name, the decrypted secret up to this point 
-and a percentage of the progress. Further details are provided per  batch.
+and a percentage of the progress. Percentage is calculated by dividing the
+length of the already decrypted-known secret with the length of the whole secret which 
+we want to decrypt. Further details are provided per  batch.
 These are the round number, the batch number, the alignment alphabet, 
 the possible knownsecret and the confidence.
 
@@ -71,7 +73,8 @@ On a DELETE request, the backend deletes the specific attack.
 The \textit{/victim/notstarted} is an HTTP GET endpoint. When a GET request 
 is received, the backend scans the wifi network with bettercap to find all 
 possible victims and their machine's name. The backend returns a list of 
-possible's victims IPs and machine names.
+possible's victims IPs and machine names, which are available on the network
+but are not already attacked.
 
 
 \subsection{/target}
@@ -79,7 +82,7 @@ This is an HTTP 200 POST and GET endpoint.
 On a POST request, the argument passed to the backend is the name of the target, 
 the endpoint, the known prefix, the secret's alphabet, the secret length, 
 the alignment alphabet, the records' cardinality and the method of the attack. 
-The backend creates and stores the new target and returns 200 HTTP with a JSON 
+The backend creates and stores the new target and returns HTTP 200 with a JSON 
 with the target name.
 
 On a GET request, the backend returns an HTTP 200 JSON response. The JSON contains 
@@ -103,10 +106,10 @@ and choosing one of victims with bettercap.
 \includegraphics[width=0.7\textwidth]{diagrams/startPage.png}
 \end{figure}
 
-The completed and the running or paused attacks are represented PC icons. 
+The completed and the running or paused attacks are represented by PC icons. 
 When the user clicks the \textit{Scan for victims} button, bettercap scans 
 the network for possible victims, which are shown beneath the running/paused attacks.
-The user can otherwise click \textit{Add custom victim} 
+The user can otherwise click on the \textit{Add custom victim} 
 button if they already know the victim’s IP and don’t need to search for other victims.
 
 \begin{figure}[H] \centering \includegraphics[width=95mm]{diagrams/notstarted.png}
@@ -128,7 +131,7 @@ new one.
     \caption{Target Configuration}
 \end{figure}
 
-When the user clicks a completed, running or paused attack, 
+When the user clicks on a completed, running or paused attack, 
 they can view further details of the attack.
 
 \begin{figure}[H]
