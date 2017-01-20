@@ -7,7 +7,7 @@ negotiation between servers and clients \cite{rc4_prohibit} due to several other
 ties. 
 
 Block alignment techniques have already been explored in the literature \cite{poodle} and 
-Dimitris Karakostas also investigated statistical methods
+Dimitris Karakostas\cite{karakostas} also investigated statistical methods
 to attack block ciphers in his thesis.
 The section \ref{sec:blockalign} evolves the use of statistical
 methods for block cipher attacks in a more structured way.
@@ -24,7 +24,7 @@ by adding padding.
 
 In order to bypass this, we propose the introdution of artificial noise, 
 which will force the creation of additional blocks, if necessary. 
-Theoretically, it would be enough to issue $16\times$ more requests
+Theoretically, it would be enough to issue $16\times$ more requests in 16 bits blocks
 to achieve block alignment. At this point, the correct candidate would result in one less
 block, which in turn would provide a measurable length difference. 
 
@@ -33,7 +33,7 @@ block, which in turn would provide a measurable length difference.
 \includegraphics[width=0.7\textwidth]{diagrams/block_alignment.png}\end{figure}
 
 This figure illusrates an example of how the artificial noise results in block alignment and 
-how this contributes to distingush between lengths. The example assume a known secret
+how this contributes to distingush between lengths. The example assumes a known secret
 \textit{fooba} and a possible next byte drawn from the alphabet \textit{(r,s,t)}.
 When the attack uses the padding \textit{XY}, the total lenght size 
 of the three possible next bytes are the same. Although \textit{foobar} has 15 bits,
